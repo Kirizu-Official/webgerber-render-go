@@ -58,6 +58,8 @@ func (r *PCBRender) Render() *gg.Context {
 			r.RenderRegion(data)
 		case ChildModeTypeShape:
 			r.RenderShape(data)
+		case ChildModeTypePath:
+			r.RenderPath(data)
 		default:
 			panic("unknown child type: " + childType)
 		}
@@ -79,8 +81,7 @@ func (r *PCBRender) toImagePosOtherValue(pos *fastjson.Value) float64 {
 func (r *PCBRender) toImagePosOther(pos float64) float64 {
 	return pos * r.opt.Zoom
 }
-func (r *PCBRender) RenderRegion(data *fastjson.Value) {
-
+func (r *PCBRender) drawSegmentPath(data *fastjson.Value) {
 	segments := data.GetArray("segments")
 	r.gg.ClearPath()
 	startFrom := segments[0].GetArray("start")
@@ -98,10 +99,15 @@ func (r *PCBRender) RenderRegion(data *fastjson.Value) {
 		} else {
 			panic("unknown segments type: " + segmentType)
 		}
-
 	}
+}
+func (r *PCBRender) RenderPath(data *fastjson.Value) {
+	r.drawSegmentPath(data)
+	r.gg.Stroke()
+}
+func (r *PCBRender) RenderRegion(data *fastjson.Value) {
+	r.drawSegmentPath(data)
 	r.gg.Fill()
-
 }
 
 func (r *PCBRender) RenderShape(data *fastjson.Value) {
