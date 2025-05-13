@@ -39,7 +39,7 @@ func (r *PCBRender) Render() *gg.Context {
 
 	r.gg = gg.NewContext(int(r.Size.Width*r.opt.Zoom), int(r.Size.Height*r.opt.Zoom))
 
-	r.gg.InvertY()
+	// r.gg.InvertY()
 	r.gg.SetColor(r.opt.ClearColor)
 	r.gg.Clear()
 	children := r.pcb.GetArray("children")
