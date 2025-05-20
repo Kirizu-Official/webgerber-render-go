@@ -20,6 +20,8 @@ type RenderOptions struct {
 	Zoom       float64     `json:"zoom"`       // the default is 100(1mm=100px)
 	DarkColor  color.Color `json:"darkColor"`  // Object color, default is black
 	ClearColor color.Color `json:"clearColor"` // Empty color, default is full transparent
+	FillPath   bool        `json:"fillPath"`
+	FillColor  color.Color `json:"fillColor"`
 }
 type PCBPosition struct {
 	Start Position `json:"start"`
@@ -61,6 +63,7 @@ func (r *PCBRender) Render() *gg.Context {
 		case ChildModeTypePath:
 			r.RenderPath(data)
 		default:
+			fmt.Println(string(data.MarshalTo(nil)))
 			panic("unknown child type: " + childType)
 		}
 
@@ -97,12 +100,21 @@ func (r *PCBRender) drawSegmentPath(data *fastjson.Value) {
 		} else if segmentType == PathSegmentTypeArc {
 			r.gg.DrawArc(r.toImagePosX(center[0]), r.toImagePosY(center[1]), r.toImagePosOther(segment.GetFloat64("radius")), start[2].GetFloat64(), end[2].GetFloat64())
 		} else {
+			fmt.Println(string(segment.MarshalTo(nil)))
 			panic("unknown segments type: " + segmentType)
 		}
 	}
 }
 func (r *PCBRender) RenderPath(data *fastjson.Value) {
 	r.drawSegmentPath(data)
+	if r.opt.FillPath {
+		if r.opt.FillColor == nil {
+			r.opt.FillColor = r.opt.DarkColor
+		}
+		r.gg.SetColor(r.opt.FillColor)
+		r.gg.FillPreserve()
+		r.gg.SetColor(r.opt.DarkColor)
+	}
 	r.gg.Stroke()
 }
 func (r *PCBRender) RenderRegion(data *fastjson.Value) {
@@ -123,7 +135,6 @@ func (r *PCBRender) RenderShape(data *fastjson.Value) {
 	} else if shapeType == ShapeTypeLayered {
 		r.RenderShapeLayered(shape)
 	} else {
-
 		fmt.Println(string(data.MarshalTo(nil)))
 		panic("unknown shape type: " + shapeType)
 	}
@@ -143,7 +154,6 @@ func (r *PCBRender) RenderShapeRect(shape *fastjson.Value) {
 }
 
 func (r *PCBRender) RenderShapeCircle(shape *fastjson.Value) {
-	fmt.Println("shape circle", shape.Get("cx"), shape.Get("cy"), shape.GetFloat64("r"))
 	r.gg.DrawCircle(r.toImagePosX(shape.Get("cx")), r.toImagePosY(shape.Get("cy")), r.toImagePosOther(shape.GetFloat64("r")))
 	r.gg.Fill()
 
