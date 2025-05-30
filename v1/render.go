@@ -61,6 +61,8 @@ func (r *PCBRender) Render() *gg.Context {
 		case ChildModeTypeShape:
 			r.RenderShape(data)
 		case ChildModeTypePath:
+			pathWidth := data.GetFloat64("pathWidth")
+			r.gg.SetLineWidth(pathWidth)
 			r.RenderPath(data)
 		default:
 			fmt.Println(string(data.MarshalTo(nil)))
@@ -115,6 +117,7 @@ func (r *PCBRender) RenderPath(data *fastjson.Value) {
 		r.gg.FillPreserve()
 		r.gg.SetColor(r.opt.DarkColor)
 	}
+
 	r.gg.Stroke()
 }
 func (r *PCBRender) RenderRegion(data *fastjson.Value) {
