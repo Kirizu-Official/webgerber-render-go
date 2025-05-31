@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	file, err := os.ReadFile("./test.json")
+	file, err := os.ReadFile("./test/test.json")
 	if err != nil {
 		panic(err)
 	}
