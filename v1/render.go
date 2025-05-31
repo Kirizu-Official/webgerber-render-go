@@ -62,7 +62,7 @@ func (r *PCBRender) Render() *gg.Context {
 			r.RenderShape(data)
 		case ChildModeTypePath:
 			pathWidth := data.GetFloat64("pathWidth")
-			r.gg.SetLineWidth(pathWidth)
+			r.gg.SetLineWidth(r.toImagePosOther(pathWidth))
 			r.RenderPath(data)
 		default:
 			fmt.Println(string(data.MarshalTo(nil)))
